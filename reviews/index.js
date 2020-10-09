@@ -1,73 +1,57 @@
 const axios = require('axios');
-const jsdom = require('jsdom');
-const { JSDOM } = jsdom;
 const ObjectsToCsv = require('objects-to-csv');
-const { DateTime } = require("luxon");
 const readlineSync = require('readline-sync');
 const fs = require('fs');
+
 // Get what we're running
 const sitesToScrape = ['Lazarous', 'NuLeaf'];
 const siteToScrape = sitesToScrape[readlineSync.keyInSelect(sitesToScrape, 'Which site should we scrape?')];
+
 // Init conifg
-const config = JSON.parse(fs.readFileSync('configs/'+siteToScrape.toLowerCase()+'.json', 'utf8'));
+const config = require('./models/' + siteToScrape.toLowerCase() + '.js');
 
-const parseTime = string => {
-  return DateTime.fromISO(string).toUTC().toFormat('yyyy-MM-dd hh:mm:ss ZZZZ');
-};
+const getRecursePagination = page => {
+  return config.paginationPattern.replace(/{{index}}/, page);
+}
 
-const parseSingleComment = (document, element, hasChild = false) => {
-  let comment = {
-    user_type: 'verified_buyer',
-    appkey: 'N/A',
-    published: 'TRUE',
-    review_title: 'Comment from Lazarous',
-    review_content: element.querySelector('.description').innerHTML,
-    review_score: '',
-    date: parseTime(element.querySelector('.woocommerce-review__published-date').getAttribute('datetime')),
-    product_title: document.querySelector('.product_title').textContent,
-    display_name: element.querySelector('.woocommerce-review__author').textContent,
-    email: '',
-    md_customer_country: 'US',
-  };
-  if (!hasChild) {
-    let rating = element.querySelector('.star-rating');
-    if (rating != null) comment.review_score = element.querySelector('.star-rating').getAttribute('aria-label').replace(/Rated (\d).*?$/, '$1');
-  }
-  let child = element.querySelector('.children');
-  if (child != null) {
-    comment.children = [];
-    child.querySelectorAll('.comment').forEach(childElement => {
-      comment.children.push(parseSingleComment(document, childElement, true));
-    });
-  }
-  return comment;
-};
-
-const inspectPageForComments = async (url, acc, recursive = true) => {
+const inspectPageForComments = async (url, acc, recurseForMoreReviews = true) => {
   // Make a request for a user with a given ID
-  return axios.get(url, { responseType: 'document' })
+  return axios.get(url, { responseType: config.responseType })
     .then(async function (response) {
+      // Send message to inform a request was made
       console.log("Did a request to " + url);
-      const { document } = (new JSDOM(response.data)).window;
-      document.querySelectorAll('ol.commentlist .review').forEach(element => {
-        acc.push(parseSingleComment(document, element));
-      });
-      if (recursive) {
-        // Check for more pages
-        let page = document.querySelector('.page-numbers.current')
-        if (page != null) {
-          page = page.textContent;
-          let promises = [];
-          do {
-            // Make rescursive
-            let extraUri = '/comment-page-' + page + '#comments';
-            promises.push(inspectPageForComments(url + extraUri, acc, false));
-            page--;
-          } while (page >= 1);
-          await Promise.all(promises).then(values => {
-            // console.log(values);
-          });
-        }
+      // Parse response
+      const document = config.getDocument(response);
+      // Accumulate comment
+      config.parseForComments(document, acc);
+      // Check for more pages
+      if (recurseForMoreReviews) {
+        let promises = config.recurseParseForMoreComments(document, acc, url, inspectPageForComments);
+        // switch (config.scrapeType) {
+        //   case "recurseUntilOutOfPages":
+        //     let page = document.querySelector('.page-numbers.current')
+        //     if (page != null) {
+        //       page = page.textContent;
+        //       let promises = [];
+        //       do {
+        //         // Make rescursive
+        //         promises.push(inspectPageForComments(url + getRecursePagination(page), acc, false));
+        //         page--;
+        //       } while (page >= 1);
+        //     }
+        //     break;
+        //   case "knownPageAmount":
+        //     // We know the total amount of reviews from this attr
+        //     const totalAmountOfReviews = document.querySelector('#tab-reviews').getAttribute('data-count');
+        //     // Creat promises
+        //     let promises = [];
+        //     for (let index = 1; index * 50 < totalAmountOfReviews; index++) {
+        //       promises.push(runRequestsForComments(url + getRecursePagination(page), acc, false));
+        //     }
+        //     // Await, simply so the initial call to this function doesn't end automatically
+        //     break;
+        // }
+        await Promise.all(promises);
       }
     })
     .catch(function (error) {
@@ -91,7 +75,7 @@ var comments = [];
   });
   await Promise.all(promises).then(async values => {
     const csv = new ObjectsToCsv(comments);
-    await csv.toDisk('./lazarous-comments.csv');
+    await csv.toDisk('./output/' + config.slug.toLowerCase() + '.csv');
     console.log("All done!");
   });
 })();
