@@ -2,23 +2,17 @@ const axios = require('axios');
 const ObjectsToCsv = require('objects-to-csv');
 const readlineSync = require('readline-sync');
 const fs = require('fs');
-const { triggerAsyncId } = require('async_hooks');
+
 // Rate Limiter
 const RateLimiter = require('limiter').RateLimiter;
 var limiter = new RateLimiter(5, 'second');
 
-// Get what we're running
-const scrapeTypes = ['Reviews', 'Locations'];
-const scrapeType = scrapeTypes[readlineSync.keyInSelect(scrapeTypes, 'What are we scraping?')].toLowerCase();
-
-if (scrapeType === -1) return;
-
 // Get config to use
-const scrapeConfigs = fs.readdirSync('./' + scrapeType + '/models/').map(str => str.replace(/\.js$/, ''));
+const scrapeConfigs = fs.readdirSync('./models/').map(str => str.replace(/\.js$/, ''));
 const scrapeConfig = scrapeConfigs[readlineSync.keyInSelect(scrapeConfigs, 'What are we scraping?')] + '.js';
 
 // Init conifg
-const config = require('./' + scrapeType + '/models/' + scrapeConfig);
+const config = require('./models/' + scrapeConfig);
 
 const inspectPageForItems = async (url, acc, recurseForMoreItems = true) => {
   // Make a request for a user with a given ID
