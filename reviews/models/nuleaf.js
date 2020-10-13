@@ -10,7 +10,8 @@ class NuLeaf {
   baseUrl = 'https://stamped.io';
 
   productUrls = [
-    '/api/widget?productId=2000&apiKey=pubkey-0lXD43AO9y57H9P4nmv9Kn9q6aS51q&storeUrl=nuleafnaturals.com&take=50'
+    // '/api/widget?productId=2000&apiKey=pubkey-0lXD43AO9y57H9P4nmv9Kn9q6aS51q&storeUrl=nuleafnaturals.com&take=50',
+    '/api/widget?productId=2016&apiKey=pubkey-0lXD43AO9y57H9P4nmv9Kn9q6aS51q&storeUrl=nuleafnaturals.com&take=50',
   ]
 
   productIdUrls = [
@@ -72,7 +73,7 @@ class NuLeaf {
     const totalAmountOfReviews = document.querySelector('#tab-reviews').getAttribute('data-count');
     // Creat promises
     var promises = [];
-    for (let page = 1; page * 50 < 200; page++) {
+    for (let page = 1; page * 50 < totalAmountOfReviews; page++) {
       promises.push(inspectPageForComments(url + this.getRecursePagination(page), acc, false));
     }
     return promises;
