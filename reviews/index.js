@@ -27,31 +27,10 @@ const inspectPageForComments = async (url, acc, recurseForMoreReviews = true) =>
       // Check for more pages
       if (recurseForMoreReviews) {
         let promises = config.recurseParseForMoreComments(document, acc, url, inspectPageForComments);
-        // switch (config.scrapeType) {
-        //   case "recurseUntilOutOfPages":
-        //     let page = document.querySelector('.page-numbers.current')
-        //     if (page != null) {
-        //       page = page.textContent;
-        //       let promises = [];
-        //       do {
-        //         // Make rescursive
-        //         promises.push(inspectPageForComments(url + getRecursePagination(page), acc, false));
-        //         page--;
-        //       } while (page >= 1);
-        //     }
-        //     break;
-        //   case "knownPageAmount":
-        //     // We know the total amount of reviews from this attr
-        //     const totalAmountOfReviews = document.querySelector('#tab-reviews').getAttribute('data-count');
-        //     // Creat promises
-        //     let promises = [];
-        //     for (let index = 1; index * 50 < totalAmountOfReviews; index++) {
-        //       promises.push(runRequestsForComments(url + getRecursePagination(page), acc, false));
-        //     }
-        //     // Await, simply so the initial call to this function doesn't end automatically
-        //     break;
-        // }
+        // Await, simply so the initial call to this function doesn't end automatically
+        console.log("Awaiting all promises for " + url + "...");
         await Promise.all(promises);
+        console.log("Awaited all promises for " + url + "!");
       }
     })
     .catch(function (error) {
@@ -66,16 +45,13 @@ async function asyncForEach(array, callback) {
   }
 }
 
-var promises = [];
 var comments = [];
 
-(async () => {
+(async function main() {
   await asyncForEach(config.productUrls, async url => {
     await inspectPageForComments(config.baseUrl + url, comments);
   });
-  await Promise.all(promises).then(async values => {
-    const csv = new ObjectsToCsv(comments);
-    await csv.toDisk('./output/' + config.slug.toLowerCase() + '.csv');
-    console.log("All done!");
-  });
+  const csv = new ObjectsToCsv(comments);
+  await csv.toDisk('./output/' + config.slug.toLowerCase() + '.csv');
+  console.log("All done!");
 })();
