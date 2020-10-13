@@ -13,10 +13,6 @@ const siteToScrape = sitesToScrape[readlineSync.keyInSelect(sitesToScrape, 'Whic
 // Init conifg
 const config = require('./models/' + siteToScrape.toLowerCase() + '.js');
 
-const getRecursePagination = page => {
-  return config.paginationPattern.replace(/{{index}}/, page);
-}
-
 const inspectPageForComments = async (url, acc, recurseForMoreReviews = true) => {
   // Make a request for a user with a given ID
   return new Promise((resolve,reject) => {
@@ -61,7 +57,7 @@ async function asyncForEach(array, callback) {
 var comments = [];
 
 (async function main() {
-  await asyncForEach(config.productUrls, async url => {
+  await asyncForEach(config.urlsToRecurse, async url => {
     await inspectPageForComments(config.baseUrl + url, comments);
   });
   const csv = new ObjectsToCsv(comments);

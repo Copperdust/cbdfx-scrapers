@@ -5,11 +5,11 @@ const { JSDOM } = jsdom;
 class Lazarous {
   slug = 'lazarous';
 
-  responseType = 'json';
+  responseType = 'document';
 
   baseUrl = 'https://www.lazarusnaturals.com';
 
-  productUrls = [
+  urlsToRecurse = [
     '/shop/all_only/baseball_cap',
     '/shop/all_only/calm-balm-bundle',
     '/shop/all_only/cbd-massage-oil',

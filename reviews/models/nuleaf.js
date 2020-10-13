@@ -9,8 +9,8 @@ class NuLeaf {
 
   baseUrl = 'https://stamped.io';
 
-  productUrls = [
-    // '/api/widget?productId=2000&apiKey=pubkey-0lXD43AO9y57H9P4nmv9Kn9q6aS51q&storeUrl=nuleafnaturals.com&take=50',
+  urlsToRecurse = [
+    '/api/widget?productId=2000&apiKey=pubkey-0lXD43AO9y57H9P4nmv9Kn9q6aS51q&storeUrl=nuleafnaturals.com&take=50',
     '/api/widget?productId=2016&apiKey=pubkey-0lXD43AO9y57H9P4nmv9Kn9q6aS51q&storeUrl=nuleafnaturals.com&take=50',
   ]
 
