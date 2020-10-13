@@ -74,12 +74,12 @@ class Lazarous {
     return DateTime.fromISO(string).toUTC().toFormat('yyyy-MM-dd hh:mm:ss ZZZZ');
   }
 
-  parseSingleComment = (document, element, hasChild = false) => {
-    let comment = {
+  parseSingleItem = (document, element, hasChild = false) => {
+    let item = {
       user_type: 'verified_buyer',
       appkey: 'N/A',
       published: 'TRUE',
-      review_title: 'Comment from Lazarous',
+      review_title: 'Item from Lazarous',
       review_content: element.querySelector('.description').innerHTML,
       review_score: '',
       date: this.parseTime(element.querySelector('.woocommerce-review__published-date').getAttribute('datetime')),
@@ -90,21 +90,21 @@ class Lazarous {
     };
     if (!hasChild) {
       let rating = element.querySelector('.star-rating');
-      if (rating != null) comment.review_score = element.querySelector('.star-rating').getAttribute('aria-label').replace(/Rated (\d).*?$/, '$1');
+      if (rating != null) item.review_score = element.querySelector('.star-rating').getAttribute('aria-label').replace(/Rated (\d).*?$/, '$1');
     }
     let child = element.querySelector('.children');
     if (child != null) {
-      comment.children = [];
+      item.children = [];
       child.querySelectorAll('.comment').forEach(childElement => {
-        comment.children.push(this.parseSingleComment(document, childElement, true));
+        item.children.push(this.parseSingleItem(document, childElement, true));
       });
     }
-    return comment;
+    return item;
   };
 
-  parseForComments(document, acc) {
+  parseForItems(document, acc) {
     document.querySelectorAll('ol.commentlist .review').forEach(element => {
-      acc.push(this.parseSingleComment(document, element));
+      acc.push(this.parseSingleItem(document, element));
     });
   }
 
@@ -112,18 +112,18 @@ class Lazarous {
     return '/comment-page-{{index}}#comments'.replace(/{{index}}/, page);
   }
 
-  recurseParseForMoreComments(document, acc, url, inspectPageForComments) {
+  recurseParseForMoreItems(document, acc, url, inspectPageForItems) {
     var page = document.querySelector('.page-numbers.current')
     var promises = [];
     if (page != null) {
       page = page.textContent;
       do {
         // Make rescursive
-        promises.push(inspectPageForComments(url + this.getRecursePagination(page), acc, false));
+        promises.push(inspectPageForItems(url + this.getRecursePagination(page), acc, false));
         page--;
       } while (page >= 1);
     }
-    return promises;
+    return Promise.all(promises);
   }
 }
 

@@ -20,8 +20,8 @@ class projectcbd {
     return document;
   }
 
-  parseSingleLocation = (document, element, hasChild = false) => {
-    let location = {
+  parseSingleItem = (document, element, hasChild = false) => {
+    let item = {
       title: (element.querySelector('.views-field-title').textContent || '').trim(),
       phone: (element.querySelector('.views-field-phone').textContent || '').trim(),
       street: (element.querySelector('.views-field-street').textContent || '').trim(),
@@ -29,20 +29,20 @@ class projectcbd {
       province: (element.querySelector('.views-field-province').textContent || '').trim(),
       postalCode: (element.querySelector('.views-field-postal-code').textContent || '').trim(),
     }
-    return location;
+    return item;
   };
 
-  parseForLocations(document, acc) {
+  parseForItems(document, acc) {
     document.querySelectorAll('.views-table tbody tr').forEach(element => {
-      acc.push(this.parseSingleLocation(document, element));
+      acc.push(this.parseSingleItem(document, element));
     });
   }
 
-  async recurseParseForMoreLocations(document, acc, url, inspectPageForLocations) {
+  async recurseParseForMoreItems(document, acc, url, inspectPageForItems) {
     const nextPager = document.querySelector('.pager-next a');
     if (nextPager != null) {
       const nextLink = nextPager.getAttribute('href');
-      await inspectPageForLocations(this.baseUrl + nextLink, acc, true);
+      await inspectPageForItems(this.baseUrl + nextLink, acc, true);
     } else {
       console.log("No longer recursing!");
     }

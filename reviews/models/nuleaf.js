@@ -40,8 +40,8 @@ class NuLeaf {
     return DateTime.fromFormat(string, 'MM/dd/yyyy').toUTC().toFormat('yyyy-MM-dd hh:mm:ss ZZZZ');
   }
 
-  parseSingleComment = (document, element) => {
-    let comment = {
+  parseSingleItem = (document, element) => {
+    let item = {
       appkey: 'N/A',
       published: 'TRUE',
       review_title: element.querySelector('.stamped-review-header-title').textContent,
@@ -55,12 +55,12 @@ class NuLeaf {
       md_customer_country: 'US',
       rating: element.querySelector('.stamped-review-header-starratings').getAttribute('data-rating'),
     }
-    return comment;
+    return item;
   };
 
-  parseForComments(document, acc) {
+  parseForItems(document, acc) {
     document.querySelectorAll('.stamped-review').forEach(element => {
-      acc.push(this.parseSingleComment(document, element));
+      acc.push(this.parseSingleItem(document, element));
     });
   }
 
@@ -68,15 +68,15 @@ class NuLeaf {
     return '&page={{index}}'.replace(/{{index}}/, page);
   }
 
-  recurseParseForMoreComments(document, acc, url, inspectPageForComments) {
+  recurseParseForMoreItems(document, acc, url, inspectPageForItems) {
     // We know the total amount of reviews from this attr
     const totalAmountOfReviews = document.querySelector('#tab-reviews').getAttribute('data-count');
     // Creat promises
     var promises = [];
     for (let page = 1; page * 50 < totalAmountOfReviews; page++) {
-      promises.push(inspectPageForComments(url + this.getRecursePagination(page), acc, false));
+      promises.push(inspectPageForItems(url + this.getRecursePagination(page), acc, false));
     }
-    return promises;
+    return Promise.all(promises);
   }
 }
 
