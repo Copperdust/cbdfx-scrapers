@@ -23,8 +23,8 @@ class BaseScrapeClass {
   async inspectPageForItems(url, acc, recurseForMoreItems = true) {
     // Make a request for a user with a given ID
     return new Promise((resolve, reject) => {
-      this.limiter.removeTokens(1, async () => {
-        await this.axiosRequest(url)
+      this.limiter.removeTokens(1, () => {
+        this.axiosRequest(url)
           .then(async response => {
             // Send message to inform a request was made
             console.log("Did a request to " + url);
