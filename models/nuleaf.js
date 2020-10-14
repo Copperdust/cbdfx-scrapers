@@ -1,8 +1,9 @@
 const { DateTime } = require('luxon');
 const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
+const BaseScrapeClass = require('../includes/base.js');
 
-class NuLeaf {
+class nuleaf extends BaseScrapeClass {
   slug = 'nuleaf';
 
   responseType = 'json';
@@ -22,6 +23,7 @@ class NuLeaf {
   ]
 
   constructor() {
+    super()
   }
 
   getDocument(response) {
@@ -80,4 +82,4 @@ class NuLeaf {
   }
 }
 
-module.exports = new NuLeaf();
+module.exports = new nuleaf();

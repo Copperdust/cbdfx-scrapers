@@ -1,8 +1,9 @@
 const { DateTime } = require('luxon');
 const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
+const BaseScrapeClass = require('../includes/base.js');
 
-class Lazarous {
+class lazarous extends BaseScrapeClass {
   slug = 'lazarous';
 
   responseType = 'document';
@@ -63,6 +64,7 @@ class Lazarous {
   ]
 
   constructor() {
+    super()
   }
 
   getDocument(response) {
@@ -127,4 +129,4 @@ class Lazarous {
   }
 }
 
-module.exports = new Lazarous();
+module.exports = new lazarous();

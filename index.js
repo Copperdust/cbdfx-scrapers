@@ -18,7 +18,7 @@ const inspectPageForItems = async (url, acc, recurseForMoreItems = true) => {
   // Make a request for a user with a given ID
   return new Promise((resolve, reject) => {
     limiter.removeTokens(1, async () => {
-      await axios.get(url, { responseType: config.responseType })
+      await config.axiosRequest(url)
         .then(async function (response) {
           // Send message to inform a request was made
           console.log("Did a request to " + url);

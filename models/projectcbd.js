@@ -1,7 +1,8 @@
 const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
+const BaseScrapeClass = require('../includes/base.js');
 
-class projectcbd {
+class projectcbd extends BaseScrapeClass {
   slug = 'projectcbd';
 
   responseType = 'document';
@@ -13,6 +14,7 @@ class projectcbd {
   ]
 
   constructor() {
+    super()
   }
 
   getDocument(response) {

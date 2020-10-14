@@ -1,7 +1,8 @@
 const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
+const BaseScrapeClass = require('../includes/base.js');
 
-class cbdmap {
+class cbdmap extends BaseScrapeClass {
   slug = 'cbdmap';
 
   responseType = 'document';
@@ -31,6 +32,7 @@ class cbdmap {
   ]
 
   constructor() {
+    super()
   }
 
   getDocument(response) {
