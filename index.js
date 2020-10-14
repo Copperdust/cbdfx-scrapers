@@ -25,7 +25,7 @@ const inspectPageForItems = async (url, acc, recurseForMoreItems = true) => {
           // Parse response
           const document = config.getDocument(response);
           // Accumulate comment
-          config.parseForItems(document, acc);
+          config.parseForItems(document, acc, url);
           // Check for more pages
           if (recurseForMoreItems) {
             await config.recurseParseForMoreItems(document, acc, url, inspectPageForItems);
@@ -38,7 +38,7 @@ const inspectPageForItems = async (url, acc, recurseForMoreItems = true) => {
             inspectPageForItems(url, acc, recurseForMoreItems);
           }
           // handle error
-          reject();
+          reject(error);
         });
     });
   })
