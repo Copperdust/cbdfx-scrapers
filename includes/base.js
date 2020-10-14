@@ -6,7 +6,7 @@ class BaseScrapeClass {
     amount: 5,
     timespan: 'second'
   }
-  
+
   constructor() {
     this.limiter = new RateLimiter(this.limiterConfig.amount, this.limiterConfig.timespan);
   }
@@ -56,6 +56,20 @@ class BaseScrapeClass {
         }
       });
   };
+
+  async asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+      await callback(array[index], index, array);
+    }
+  }
+
+  async scrape() {
+    var items = [];
+    await this.asyncForEach(this.urlsToRecurse, async url => {
+      await this.inspectPageForItems(this.baseUrl + url, items);
+    });
+    return items;
+  }
 }
 
 module.exports = BaseScrapeClass;

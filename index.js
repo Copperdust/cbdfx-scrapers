@@ -9,18 +9,8 @@ const scrapeConfig = scrapeConfigs[readlineSync.keyInSelect(scrapeConfigs, 'What
 // Init conifg
 const config = require('./models/' + scrapeConfig);
 
-async function asyncForEach(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
-  }
-}
-
-var items = [];
-
 (async function main() {
-  await asyncForEach(config.urlsToRecurse, async url => {
-    await config.inspectPageForItems(config.baseUrl + url, items);
-  });
+  const items = await config.scrape();
   const csv = new ObjectsToCsv(items);
   await csv.toDisk('./output/' + config.slug.toLowerCase() + '.csv');
   console.log("All done!");
