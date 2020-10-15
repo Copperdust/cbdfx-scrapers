@@ -35,22 +35,23 @@ class BaseScrapeClass {
 
   inspectPageForItems(url, acc, recurseForMoreItems = true) {
     try {
-      return new Promise((resolve, reject) => {
+      return new Promise(resolve => {
         this.limiter.removeTokens(1, async () => {
           try {
             const response = await this.axiosRequest.bind(this)(url);
             await this.processSuccessfulRequest(acc, url, response, recurseForMoreItems);
           } catch (error) {
             if (!recurseForMoreItems) {
-              this.inspectPageForItems(url, acc, recurseForMoreItems);
+              await this.inspectPageForItems(url, acc, recurseForMoreItems);
             }
           }
+          resolve();
         });
       });
     } catch (error) {
       console.log(url, error.response ? error.response.statusText : error);
     }
-  };
+  }
 
   async asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index++) {
@@ -60,9 +61,11 @@ class BaseScrapeClass {
 
   async scrape() {
     var items = [];
-    await this.asyncForEach(this.urlsToRecurse, async url => {
-      await this.inspectPageForItems(this.baseUrl + url, items);
+    var promises = [];
+    this.urlsToRecurse.forEach(async url => {
+      promises.push(this.inspectPageForItems(this.baseUrl + url, items));
     });
+    await Promise.all(promises);
     return items;
   }
 }
