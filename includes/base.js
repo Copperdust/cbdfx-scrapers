@@ -21,15 +21,19 @@ class BaseScrapeClass {
   }
 
   async processSuccessfulRequest(acc, url, response, recurseForMoreItems) {
-    // Send message to inform a request was made
-    console.log("Did a request to " + url);
-    // Parse response
-    const document = this.getDocument(response);
-    // Accumulate comment
-    this.parseForItems(document, acc, url);
-    // Check for more pages
-    if (recurseForMoreItems) {
-      await this.recurseParseForMoreItems(document, acc, url, this.inspectPageForItems.bind(this));
+    try {
+      // Send message to inform a request was made
+      console.log("Did a request to " + url);
+      // Parse response
+      const document = this.getDocument(response);
+      // Accumulate comment
+      this.parseForItems(document, acc, url);
+      // Check for more pages
+      if (recurseForMoreItems) {
+        await this.recurseParseForMoreItems(document, acc, url, this.inspectPageForItems.bind(this));
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -65,7 +69,7 @@ class BaseScrapeClass {
     this.urlsToRecurse.forEach(async url => {
       promises.push(this.inspectPageForItems(this.baseUrl + url, items));
     });
-    await Promise.all(promises);
+    await Promise.all(promises).catch(e => console.log(e));
     return items;
   }
 }
